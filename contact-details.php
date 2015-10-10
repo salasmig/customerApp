@@ -72,6 +72,7 @@ $can_edit = 1;
 }
 //
 
+$data='';
 //automatically add custom field data to contacts contact_custom field
 record_set('cfields',"SELECT * FROM fields_assoc WHERE cfield_contact = ".$_GET['id']."");
 do {

@@ -22,17 +22,21 @@ if ($userid != $row_contact['contact_user'] && !$user_admin && $update) {
 
 //contact state
 //if US
-$state = $_POST['contact_state'];
+
+if (isset($_POST['contact_state']))
+	$state = $_POST['contact_state'];
 
 //if Canada
-if ($_POST['contact_state_ca'] && $_POST['contact_country'] == 'CA') {
-	$state = $_POST['contact_state_ca'];
-}
+if (isset($_POST['contact_state_ca']) && isset($_POST['contact_country']))
+	if ($_POST['contact_state_ca'] && $_POST['contact_country'] == 'CA') {
+		$state = $_POST['contact_state_ca'];
+	}
 
 //if not US and not CA
-if ($_POST['contact_country'] != 'US' && $_POST['contact_country'] != 'CA' && $_POST['contact_state_b']) {
-	$state = $_POST['contact_state_b'];
-}
+if (isset($_POST['contact_country']) && isset($_POST['contact_country']) && isset( $_POST['contact_state_b']))
+	if ($_POST['contact_country'] != 'US' && $_POST['contact_country'] != 'CA' && $_POST['contact_state_b']) {
+		$state = $_POST['contact_state_b'];
+	}
 //
 
 //UPLOAD PICTURE
@@ -62,7 +66,7 @@ if ($_FILES) {
 //END UPLOAD PICTURE
 
 //add contact
-
+if (isset($_POST['contact_first']))
 if (!$update && $_POST['contact_first']) {
 
   mysql_query("INSERT INTO contacts (contact_tags, contact_first, contact_last, contact_title, contact_image, contact_profile, contact_company, contact_street, contact_city, contact_state, contact_country, contact_zip, contact_phone, contact_cell, contact_email, contact_web, contact_updated, contact_user) VALUES 

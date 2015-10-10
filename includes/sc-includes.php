@@ -380,13 +380,13 @@ $like_where_array[] = 'contact_tags';
 
 $i = 1;
 foreach ($like_where_array as $key => $value) {
-
-$and = '';
-if ($i > 1) {
-$and = 'OR';
-}
-$like_where .= "$and $value LIKE '%".$_GET[s]."%' ";
-$i++;
+//
+//$and = '';
+//if ($i > 1) {
+//$and = 'OR';
+//}
+//$like_where .= "$and $value LIKE '%".$_GET['s']."%' ";
+//$i++;
 }
 
 ?>

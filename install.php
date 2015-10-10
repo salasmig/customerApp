@@ -5,6 +5,17 @@ $res = mysql_query("SHOW TABLE STATUS LIKE 'users'") or die(mysql_error());
 $table_exists = mysql_num_rows($res) == 1;
 $success = 0;
 $s = 0;
+
+
+// Create connection
+$conn = new mysqli($hostname_contacts, $username_contacts, $password_contacts, $database_contacts);
+// Check connection
+if ($conn->connect_error) 
+    die("Connection failed: " . $conn->connect_error);
+
+
+
+
 if (isset($_GET['s'])) {
 $success = 1;
 $s = 1;
@@ -30,117 +41,130 @@ $s = 1;
   </form>
 <?php } ?>
   <h1>
-    <?php if ($_POST['email'] && $success==0) { ?>
-<?php 
-mysql_query("CREATE TABLE `contacts` (
-  `contact_id` int(11) NOT NULL auto_increment,
-  `contact_first` varchar(255) default NULL,
-  `contact_last` varchar(255) default NULL,
-  `contact_title` varchar(255) default NULL,
-  `contact_image` varchar(255) default NULL,
-  `contact_profile` text,
-  `contact_tags` text,
-  `contact_custom` text,
-  `contact_company` varchar(255) default NULL,
-  `contact_street` varchar(255) default NULL,
-  `contact_city` varchar(255) default NULL,
-  `contact_state` varchar(255) default NULL,
-  `contact_country` varchar(255) default NULL,
-  `contact_zip` varchar(255) default NULL,
-  `contact_phone` varchar(255) default NULL,
-  `contact_cell` varchar(255) default NULL,
-  `contact_fax` varchar(255) default NULL,
-  `contact_email` varchar(255) default NULL,
-  `contact_web` varchar(255) default NULL,
-  `contact_updated` int(11) default NULL,
-  `contact_user` int(11) default NULL,
-  PRIMARY KEY  (`contact_id`)
-) TYPE=MyISAM");
+  
+<?php
+    function report_result($conn, $sql, $table)
+    {
+      if ($conn->query($sql) === TRUE)
+          echo $table. " created successfully";
+      else
+          echo "Error creating table: " . $conn->error;
+    }
+?>  
+<?php
+  if (isset($_POST['email']) && $success==0) { 
 
-mysql_query("CREATE TABLE `fields` (
-  `field_id` int(11) NOT NULL auto_increment,
-  `field_type` int(11) default NULL,
-  `field_title` varchar(255) default NULL,
-  `field_content` text,
-  PRIMARY KEY  (`field_id`)
-) TYPE=MyISAM");
+    $sql = "CREATE TABLE ".$prefix."contacts (
+      contact_id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      contact_first varchar(255) default NULL,
+      contact_last varchar(255) default NULL,
+      contact_title varchar(255) default NULL,
+      contact_image varchar(255) default NULL,
+      contact_profile text,
+      contact_tags text,
+      contact_custom text,
+      contact_company varchar(255) default NULL,
+      contact_street varchar(255) default NULL,
+      contact_city varchar(255) default NULL,
+      contact_state varchar(255) default NULL,
+      contact_country varchar(255) default NULL,
+      contact_zip varchar(255) default NULL,
+      contact_phone varchar(255) default NULL,
+      contact_cell varchar(255) default NULL,
+      contact_fax varchar(255) default NULL,
+      contact_email varchar(255) default NULL,
+      contact_web varchar(255) default NULL,
+      contact_updated int(11) default NULL,
+      contact_user int(11) default NULL
+    )";
+    report_result($conn,$sql,"contact");
 
-mysql_query("CREATE TABLE `fields_assoc` (
-  `cfield_id` int(11) NOT NULL auto_increment,
-  `cfield_contact` int(11) default NULL,
-  `cfield_field` int(11) default NULL,
-  `cfield_value` text,
-  PRIMARY KEY  (`cfield_id`)
-) TYPE=MyISAM");
+    $sql = "CREATE TABLE ".$prefix."fields (
+      field_id int(11) NOT NULL auto_increment PRIMARY KEY,
+      field_type int(11) default NULL,
+      field_title varchar(255) default NULL,
+      field_content text
+    )";
+    report_result($conn,$sql,"fields");
 
-mysql_query("CREATE TABLE `users` (
-  `user_id` int(11) NOT NULL auto_increment,
-  `user_level` int(11) default NULL,
-  `user_email` varchar(255) default NULL,
-  `user_password` varchar(255) default NULL,
-  `user_date` int(10) default NULL,
-  `user_home` varchar(255) default NULL,
-  PRIMARY KEY  (`user_id`)
-) TYPE=MyISAM");
+    $sql = "CREATE TABLE ".$prefix."fields_assoc (
+      cfield_id int(11) NOT NULL auto_increment PRIMARY KEY,
+      cfield_contact int(11) default NULL,
+      cfield_field int(11) default NULL,
+      cfield_value text
+    )";
+    report_result($conn,$sql,"filelds_assoc");
 
-mysql_query("INSERT INTO `users` (`user_id`, `user_level`, `user_email`, `user_password`, `user_date`, `user_home`) VALUES (1, 1, '".trim($_POST['email'])."', '".trim($_POST['password'])."', NULL, 'index.php')");
+    $sql = "CREATE TABLE ".$prefix."users (
+      user_id int(11) NOT NULL auto_increment PRIMARY KEY,
+      user_level int(11) default NULL,
+      user_email varchar(255) default NULL,
+      user_password varchar(255) default NULL,
+      user_date int(10) default NULL,
+      user_home varchar(255) default NULL  
+    )";
+    report_result($conn,$sql,"users");
 
-mysql_query("CREATE TABLE `history` (
-  `history_id` int(11) NOT NULL auto_increment,
-  `history_type` int(11) default NULL,
-  `history_contact` int(11) default NULL,
-  `history_date` int(10) default NULL,
-  `history_status` int(11) default NULL,
-  `history_user` int(11) default NULL,
-  PRIMARY KEY  (`history_id`)
-) TYPE=MyISAM");
+    $sql = "INSERT INTO ".$prefix."users (user_id, user_level, user_email, user_password, user_date, user_home) VALUES (1, 1, '".trim($_POST['email'])."', '".trim($_POST['password'])."', NULL, 'index.php')";
+    report_result($conn,$sql,"admin_user");
+  
+    $sql = "CREATE TABLE ".$prefix."history (
+      history_id int(11) NOT NULL auto_increment PRIMARY KEY,
+      history_type int(11) default NULL,
+      history_contact int(11) default NULL,
+      history_date int(10) default NULL,
+      history_status int(11) default NULL,
+      history_user int(11) default NULL  
+    )";
+    report_result($conn,$sql,"history");
 
+    $sql = "CREATE TABLE ".$prefix."notes (
+      note_id int(11) NOT NULL auto_increment PRIMARY KEY,
+      note_contact int(11) default NULL,
+      note_text text,
+      note_date varchar(10) default NULL,
+      note_status int(11) default NULL,
+      note_user int(11) default NULL
+    )";
+    report_result($conn,$sql,"notes");
 
+    $sql = "CREATE TABLE ".$prefix."tags (
+      tag_id int(11) NOT NULL auto_increment PRIMARY KEY,
+      tag_description varchar(255) character set utf8 default NULL
+    )";
+    report_result($conn,$sql,"tags");
 
-mysql_query("CREATE TABLE `notes` (
-  `note_id` int(11) NOT NULL auto_increment,
-  `note_contact` int(11) default NULL,
-  `note_text` text,
-  `note_date` varchar(10) default NULL,
-  `note_status` int(11) default NULL,
-  `note_user` int(11) default NULL,
-  PRIMARY KEY  (`note_id`)
-) TYPE=MyISAM");
+    $sql = "CREATE TABLE ".$prefix."tags_assoc (            
+      itag_id int(11) NOT NULL auto_increment PRIMARY KEY,
+      itag_contact int(11) default NULL,
+      itag_tag int(11) default NULL 
+    )";
+    report_result($conn,$sql,"tags_assoc");
 
+    $_SESSION['user'] = $_POST['email'];
+    header('Location: install.php?s'); die;
 
-mysql_query("CREATE TABLE `tags` (
-  `tag_id` int(11) NOT NULL auto_increment,
-  `tag_description` varchar(255) character set utf8 default NULL,
-  PRIMARY KEY  (`tag_id`)
-) TYPE=MyISAM");
-
-
-mysql_query("CREATE TABLE `tags_assoc` (
-  `itag_id` int(11) NOT NULL auto_increment,
-  `itag_contact` int(11) default NULL,
-  `itag_tag` int(11) default NULL,
-  PRIMARY KEY  (`itag_id`)
-) TYPE=MyISAM");
-
-
-$_SESSION['user'] = $_POST['email'];
-header('Location: install.php?s'); die;
+    $conn->close();   
+  }
 ?>
-<?php } ?>
+
 <?php if ($success==1) { 
-$query_usercheck = "SELECT * FROM users ";
+$query_usercheck = "SELECT * FROM ".$prefix."users ";
 $usercheck = mysql_query($query_usercheck, $contacts) or die(mysql_error());
 $row_usercheck = mysql_fetch_assoc($usercheck);
 $totalRows_usercheck = mysql_num_rows($usercheck);
 if ($totalRows_usercheck > 0) { $success = 1; } 
-
 ?>
 Installation Successful!  Please delete install.php and <a href="index.php" class="links">proceed to login.</a></h1>
 <?php } ?>
+  
+
 </div>
 
 </body>
 </html>
+
+
 
 
 

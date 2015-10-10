@@ -5,11 +5,12 @@ if (isset($_SESSION['user'])) {
 header('Location: index.php');
 }
 mysql_select_db($database_contacts, $contacts);
-$pagetitle = Login;
+$pagetitle = 'Login';
 
 
-if ($_POST['email']  && $_POST['password']) {
-record_set('logincheck',"SELECT * FROM users WHERE user_email = '".addslashes($_POST['email'])."' AND user_password = '".addslashes($_POST['password'])."'");
+if (isset($_POST['email']) && isset($_POST['password']))
+	if ($_POST['email']  && $_POST['password']) {
+		record_set('logincheck',"SELECT * FROM users WHERE user_email = '".addslashes($_POST['email'])."' AND user_password = '".addslashes($_POST['password'])."'");
 
 if ($totalRows_logincheck==1) { 
 	$_SESSION['user'] = addslashes($_POST['email']);

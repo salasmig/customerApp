@@ -21,13 +21,15 @@ record_set('users',"SELECT * FROM users ORDER BY user_email ASC");
 
 if ($update) {
 record_set('userp',"SELECT * FROM users WHERE user_id = ".$_GET['id']."");
-}
-
 $password = $row_userp['user_password'];
-
-if ($_POST['password']) {
-$password = $_POST['password'];
 }
+
+
+
+if (isset($_POST['password']))
+	if ($_POST['password']) {
+		$password = $_POST['password'];
+	}
 
 //ADD user
 if ($add && $_POST['user_email']) {
@@ -47,30 +49,33 @@ header('Location: users.php'); die;
 //
 
 //don't let an admin change their own status to anything but admin
-$ulevel = $_POST['user_level'];
-if ($user_admin == $_GET['id'] && $_POST['user_level'] != 1) {
-$ulevel = 1;
+if (isset($_POST['user_level']))
+{
+	$ulevel = $_POST['user_level'];
+	if ($user_admin == $_GET['id'] && $_POST['user_level'] != 1) {
+		$ulevel = 1;
+	}
 }
 //
 
 //UPDATE user
-if ($_POST['user_email'] && $update) {
+if (isset($_POST['user_email'])) {
+	if ($_POST['user_email'] && $update) {
 
-	mysql_query("UPDATE users SET 
-		user_level = '".$ulevel."',
-		user_email = '".trim($_POST['user_email'])."', 
-		user_password = '".trim($password)."', 
-		user_home = 'contacts.php'
-	WHERE user_id = ".$_GET['id']."
-	");
+		mysql_query("UPDATE users SET 
+			user_level = '".$ulevel."',
+			user_email = '".trim($_POST['user_email'])."', 
+			user_password = '".trim($password)."', 
+			user_home = 'contacts.php'
+		WHERE user_id = ".$_GET['id']."
+		");
 	
-	set_msg('User Updated');
-	if ($row_userp['user_id'] == $userid) {
-	$_SESSION['user'] = $_POST['email'];
+		set_msg('User Updated');
+		if ($row_userp['user_id'] == $userid) {
+		$_SESSION['user'] = $_POST['email'];
+		}	
+		header('Location: users.php'); die;
 	}
-	
-	
-	header('Location: users.php'); die;
 }
 //
 
